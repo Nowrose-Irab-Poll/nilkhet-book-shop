@@ -5,7 +5,7 @@ const searchData = () => {
     const searchKeyword = searchField.value;
 
     const searchShow = document.getElementById('search-keyword');
-    searchShow.innerText = `Showing Results for: ${searchKeyword}`;
+    searchShow.innerText = `Showing Results for: "${searchKeyword}"`;
 
     toggleSpinner(true);
     clearResults();
@@ -16,7 +16,6 @@ const searchData = () => {
 }
 
 const loadData = key => {
-
 
     const url = `https://openlibrary.org/search.json?q=${key}`;
     fetch(url).then(res => res.json()).then(json => parseData(json));
@@ -42,7 +41,7 @@ const showResults = itemList => {
     const cardList = document.getElementById('search-results');
 
     console.log(itemList.length);
-    itemList.forEach(element => {
+    itemList.slice(0,21).forEach(element => {
         const item = createCard(element);
         cardList.appendChild(item);
     });
@@ -51,20 +50,19 @@ const showResults = itemList => {
 
 const createCard = (cardData) => {
     const title = cardData.title;
-    const firstPublication = cardData?.first_publish_year;
+    let firstPublication = cardData?.first_publish_year;
     const authors = cardData?.author_name;
     const coverID = cardData?.cover_i;
     const coverUrl = `https://covers.openlibrary.org/b/id/${coverID}-M.jpg`;
 
     let authorText = '';
 
+    if(!firstPublication){
+        firstPublication = "Not known";
+    }
 
     if(authors){
-        authors.forEach(author => {
-            authorText = authorText + author + ', ';
-        });
-    
-        authorText = authorText.substr(0,authorText.length-2) + '.';
+        authorText = authors[0];
 
     } else {
         authorText = "Unknown";
@@ -75,15 +73,13 @@ const createCard = (cardData) => {
     item.classList.add('col');
     item.innerHTML = `
     <div class="card h-100">
-        <img src='${coverUrl}' class="card-img-top img-fluid h-80" alt='${title}-cover-photo-${coverID}'>
+        <img src='${coverUrl}' class="card-img-top img-fluid" alt='${title}-cover-photo-${coverID}'>
         <div class="card-body">
             <h5 class="card-title">${title}</h5>
-            <p class="card-text">Authors: 
-                ${authorText}
-            </p>
+            <p class="card-text">Author: ${authorText}</p>
         </div>
         <div class="card-footer">
-           <small class="text-muted">First Published in ${firstPublication}</small>
+           <small class="text-muted">First Publication: ${firstPublication}</small>
         </div>
     </div>
 
